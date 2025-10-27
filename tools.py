@@ -11,6 +11,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from trello_client import TrelloClient, TrelloAPIError
+from credential_manager import CredentialManager
 from schemas import (
     TrelloCredentials, CreateBoardRequest, CreateListRequest, 
     CreateCardRequest, UpdateBoardRequest, UpdateCardRequest, SearchRequest
@@ -24,25 +25,26 @@ class TrelloTools:
     
     def __init__(self):
         self.client = TrelloClient()
+        self.credential_manager = CredentialManager()
         
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         """Get all available tools with their schemas"""
         return {
             "list_boards": {
-                "description": "List all boards for the authenticated user",
+                "description": "List all boards for the authenticated user (credentials optional - will prompt if needed)",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "api_key": {
                             "type": "string",
-                            "description": "Trello API key"
+                            "description": "Trello API key (optional, will prompt if not provided)"
                         },
                         "token": {
                             "type": "string", 
-                            "description": "Trello API token"
+                            "description": "Trello API token (optional, will prompt if not provided)"
                         }
                     },
-                    "required": ["api_key", "token"]
+                    "required": []
                 }
             },
             "get_board": {
@@ -50,11 +52,11 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "board_id": {"type": "string", "description": "ID of the board to retrieve"}
                     },
-                    "required": ["api_key", "token", "board_id"]
+                    "required": ["board_id"]
                 }
             },
             "create_board": {
@@ -62,8 +64,8 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "name": {"type": "string", "description": "Name of the board"},
                         "desc": {"type": "string", "description": "Description of the board"},
                         "organization_id": {"type": "string", "description": "Organization ID (optional)"},
@@ -79,7 +81,7 @@ class TrelloTools:
                             }
                         }
                     },
-                    "required": ["api_key", "token", "name"]
+                    "required": ["name"]
                 }
             },
             "update_board": {
@@ -87,8 +89,8 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "board_id": {"type": "string", "description": "ID of the board to update"},
                         "name": {"type": "string", "description": "New name for the board"},
                         "desc": {"type": "string", "description": "New description for the board"},
@@ -104,7 +106,7 @@ class TrelloTools:
                             }
                         }
                     },
-                    "required": ["api_key", "token", "board_id"]
+                    "required": ["board_id"]
                 }
             },
             "get_lists": {
@@ -112,11 +114,11 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "board_id": {"type": "string", "description": "ID of the board"}
                     },
-                    "required": ["api_key", "token", "board_id"]
+                    "required": ["board_id"]
                 }
             },
             "create_list": {
@@ -124,13 +126,13 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "name": {"type": "string", "description": "Name of the list"},
                         "board_id": {"type": "string", "description": "ID of the board"},
                         "pos": {"type": ["string", "number"], "description": "Position of the list"}
                     },
-                    "required": ["api_key", "token", "name", "board_id"]
+                    "required": ["name", "board_id"]
                 }
             },
             "get_cards": {
@@ -138,12 +140,12 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "board_id": {"type": "string", "description": "ID of the board (optional if list_id provided)"},
                         "list_id": {"type": "string", "description": "ID of the list (optional if board_id provided)"}
                     },
-                    "required": ["api_key", "token"],
+                    "required": [],
                     "oneOf": [
                         {"required": ["board_id"]},
                         {"required": ["list_id"]}
@@ -155,8 +157,8 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "name": {"type": "string", "description": "Name of the card"},
                         "list_id": {"type": "string", "description": "ID of the list"},
                         "desc": {"type": "string", "description": "Description of the card"},
@@ -173,7 +175,7 @@ class TrelloTools:
                             "description": "Array of member IDs"
                         }
                     },
-                    "required": ["api_key", "token", "name", "list_id"]
+                    "required": ["name", "list_id"]
                 }
             },
             "update_card": {
@@ -181,8 +183,8 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "card_id": {"type": "string", "description": "ID of the card to update"},
                         "name": {"type": "string", "description": "New name for the card"},
                         "desc": {"type": "string", "description": "New description for the card"},
@@ -191,7 +193,7 @@ class TrelloTools:
                         "pos": {"type": ["string", "number"], "description": "New position of the card"},
                         "due": {"type": "string", "description": "Due date (ISO format, null to remove)"}
                     },
-                    "required": ["api_key", "token", "card_id"]
+                    "required": ["card_id"]
                 }
             },
             "add_member_to_card": {
@@ -199,12 +201,12 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "card_id": {"type": "string", "description": "ID of the card"},
                         "member_id": {"type": "string", "description": "ID of the member to add"}
                     },
-                    "required": ["api_key", "token", "card_id", "member_id"]
+                    "required": ["card_id", "member_id"]
                 }
             },
             "search_cards": {
@@ -212,8 +214,8 @@ class TrelloTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "api_key": {"type": "string", "description": "Trello API key"},
-                        "token": {"type": "string", "description": "Trello API token"},
+                        "api_key": {"type": "string", "description": "Trello API key (optional, will prompt if not provided)"},
+                        "token": {"type": "string", "description": "Trello API token (optional, will prompt if not provided)"},
                         "query": {"type": "string", "description": "Search query"},
                         "board_ids": {
                             "type": "array",
@@ -222,7 +224,7 @@ class TrelloTools:
                         },
                         "limit": {"type": "integer", "description": "Maximum number of results", "default": 50}
                     },
-                    "required": ["api_key", "token", "query"]
+                    "required": ["query"]
                 }
             }
         }
@@ -230,10 +232,18 @@ class TrelloTools:
     async def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a tool with the given arguments"""
         try:
+            # Get credentials: use provided or prompt user
+            api_key = arguments.get("api_key")
+            token = arguments.get("token")
+            
+            # If not provided, try to get from cache or prompt user
+            if not api_key or not token:
+                api_key, token = self.credential_manager.get_or_prompt_credentials(api_key, token)
+            
             # Extract credentials
             credentials = TrelloCredentials(
-                api_key=arguments.get("api_key"),
-                token=arguments.get("token")
+                api_key=api_key,
+                token=token
             )
             
             # Validate credentials

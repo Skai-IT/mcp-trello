@@ -115,8 +115,14 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "health": "/health",
+            "login": "/auth/login (GET)",
             "mcp": "/mcp (POST)",
             "tools": "/tools (GET)"
+        },
+        "features": {
+            "interactive_login": True,
+            "session_credentials_caching": True,
+            "no_persistent_storage": True
         },
         "documentation": "https://github.com/Skai-IT/trello-mcp-server"
     }
@@ -139,6 +145,27 @@ async def list_tools():
     except Exception as e:
         logger.error(f"Failed to list tools: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/auth/login")
+async def get_login_url():
+    """Get Trello login URL for authentication"""
+    return {
+        "message": "Interactive login will be triggered on first tool call",
+        "login_url": "https://trello.com/app-key",
+        "instructions": {
+            "step_1": "Visit https://trello.com/app-key",
+            "step_2": "Copy your API Key",
+            "step_3": "Click 'Token' link to generate/view your token",
+            "step_4": "When prompted by the MCP server, paste both values"
+        },
+        "features": {
+            "automatic_browser_open": True,
+            "session_caching": True,
+            "cache_duration_minutes": 480,
+            "no_disk_storage": True
+        }
+    }
 
 
 @app.post("/mcp")
