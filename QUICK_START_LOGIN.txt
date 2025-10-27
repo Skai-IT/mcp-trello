@@ -1,0 +1,182 @@
+# ⚡ Interactive Login - 2-Minute Quick Start
+
+## What You Need to Know
+
+Your Trello MCP now **pops for login**. No more manual API key entry!
+
+---
+
+## Step 1: Get Your Credentials
+
+1. Go to: **https://trello.com/app-key**
+2. Copy the **API Key** shown at the top
+3. Click the **"Token"** link 
+4. Copy the **Token** displayed
+
+Keep these ready (you'll paste them when prompted).
+
+---
+
+## Step 2: Make Your First Request
+
+Send any tool request **WITHOUT** credentials:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "search_cards",
+    "arguments": {
+      "query": "Cisco IronPort"
+    }
+  }
+}
+```
+
+**Note:** No `api_key` or `token` needed!
+
+---
+
+## Step 3: Browser Opens Automatically
+
+Your browser will automatically open to:
+```
+https://trello.com/app-key
+```
+
+---
+
+## Step 4: Enter Credentials in Terminal
+
+You'll see a prompt like this:
+
+```
+🔐 TRELLO LOGIN REQUIRED
+============================================================
+
+📋 Enter your Trello API Key: [paste your API key]
+🔑 Enter your Trello Token: [paste your token]
+
+✅ Credentials cached for 8 hours
+```
+
+---
+
+## Step 5: Done! ✅
+
+Your credentials are now cached. All future requests work instantly:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "list_boards",
+    "arguments": {}
+  }
+}
+```
+
+No prompts. No credentials needed. Just instant results.
+
+---
+
+## How Long Does It Last?
+
+**8 hours** - Then you'll be prompted to login again.
+
+---
+
+## Can I Still Use Direct Credentials?
+
+Yes! Just include them in your request:
+
+```json
+{
+  "params": {
+    "name": "search_cards",
+    "arguments": {
+      "api_key": "your-key",
+      "token": "your-token",
+      "query": "..."
+    }
+  }
+}
+```
+
+This will override the cache.
+
+---
+
+## Troubleshooting
+
+**Browser didn't open?**
+- Visit https://trello.com/app-key manually
+- Paste your credentials when prompted
+
+**Invalid credentials?**
+- Double-check at https://trello.com/app-key
+- Make sure token isn't expired
+- Try again - you'll be prompted once more
+
+**8 hours expired?**
+- Just make another request
+- You'll be prompted to login again
+
+---
+
+## Real Example: Search for Your Card
+
+### Your Request:
+```
+Search for: "Cisco IronPort"
+```
+
+### What Happens:
+
+1. **First Time:**
+   ```
+   Browser opens → You paste credentials → Card found ✅
+   ```
+
+2. **Every Time After (8 hours):**
+   ```
+   Instant result (cached) ✅
+   ```
+
+### Result:
+```
+Found: Cisco IronPort Email Gateway
+       Cisco IronPort Configuration
+       ...
+```
+
+---
+
+## All 11 Tools Work This Way
+
+✅ list_boards  
+✅ get_board  
+✅ create_board  
+✅ update_board  
+✅ get_lists  
+✅ create_list  
+✅ get_cards  
+✅ create_card  
+✅ update_card  
+✅ add_member_to_card  
+✅ search_cards  
+
+Just don't provide credentials, and it will prompt you automatically!
+
+---
+
+## That's It! 🎉
+
+You're ready to use your Trello MCP with interactive login.
+
+For more details, see:
+- **INTERACTIVE_LOGIN_GUIDE.md** - Complete guide with examples
+- **FEATURE_SUMMARY.txt** - Technical overview
+- **LOGIN_FEATURE.md** - How it works under the hood
