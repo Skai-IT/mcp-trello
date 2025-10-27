@@ -24,8 +24,14 @@ class TrelloTools:
     """Implementation of all Trello MCP tools"""
     
     def __init__(self):
-        self.client = TrelloClient()
+        self.client = None  # Lazy initialize
         self.credential_manager = CredentialManager()
+    
+    def get_client(self) -> TrelloClient:
+        """Get or initialize TrelloClient"""
+        if self.client is None:
+            self.client = TrelloClient()
+        return self.client
         
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         """Get all available tools with their schemas"""
@@ -247,7 +253,7 @@ class TrelloTools:
             )
             
             # Validate credentials
-            validation_result = await self.client.validate_credentials(credentials)
+            validation_result = await self.get_client().validate_credentials(credentials)
             if not validation_result["valid"]:
                 return {
                     "content": [{
@@ -302,7 +308,7 @@ class TrelloTools:
     async def _list_boards(self, credentials: TrelloCredentials) -> Dict[str, Any]:
         """List all boards"""
         try:
-            boards = await self.client.list_boards(credentials)
+            boards = await self.get_client().list_boards(credentials)
             
             if not boards:
                 return {
@@ -342,7 +348,7 @@ class TrelloTools:
         """Get detailed board information"""
         try:
             board_id = arguments.get("board_id")
-            board = await self.client.get_board(credentials, board_id)
+            board = await self.get_client().get_board(credentials, board_id)
             
             result_text = f"📋 **Board: {board.get('name', 'Unnamed')}**\n\n"
             result_text += f"**ID:** `{board.get('id')}`\n"
@@ -402,7 +408,7 @@ class TrelloTools:
                 prefs=arguments.get("prefs")
             )
             
-            board = await self.client.create_board(credentials, request)
+            board = await self.get_client().create_board(credentials, request)
             
             result_text = f"✅ **Board created successfully!**\n\n"
             result_text += f"**Name:** {board.get('name')}\n"
@@ -439,7 +445,7 @@ class TrelloTools:
                 prefs=arguments.get("prefs")
             )
             
-            board = await self.client.update_board(credentials, board_id, request)
+            board = await self.get_client().update_board(credentials, board_id, request)
             
             result_text = f"✅ **Board updated successfully!**\n\n"
             result_text += f"**Name:** {board.get('name')}\n"
@@ -467,7 +473,7 @@ class TrelloTools:
         """Get all lists on a board"""
         try:
             board_id = arguments.get("board_id")
-            lists = await self.client.get_lists(credentials, board_id)
+            lists = await self.get_client().get_lists(credentials, board_id)
             
             if not lists:
                 return {
@@ -511,7 +517,7 @@ class TrelloTools:
                 pos=arguments.get("pos")
             )
             
-            lst = await self.client.create_list(credentials, request)
+            lst = await self.get_client().create_list(credentials, request)
             
             result_text = f"✅ **List created successfully!**\n\n"
             result_text += f"**Name:** {lst.get('name')}\n"
@@ -541,7 +547,7 @@ class TrelloTools:
             board_id = arguments.get("board_id")
             list_id = arguments.get("list_id")
             
-            cards = await self.client.get_cards(credentials, board_id, list_id)
+            cards = await self.get_client().get_cards(credentials, board_id, list_id)
             
             source = f"list `{list_id}`" if list_id else f"board `{board_id}`"
             
@@ -614,7 +620,7 @@ class TrelloTools:
                 members=arguments.get("members")
             )
             
-            card = await self.client.create_card(credentials, request)
+            card = await self.get_client().create_card(credentials, request)
             
             result_text = f"✅ **Card created successfully!**\n\n"
             result_text += f"**Name:** {card.get('name')}\n"
@@ -676,7 +682,7 @@ class TrelloTools:
                 due=due_date
             )
             
-            card = await self.client.update_card(credentials, card_id, request)
+            card = await self.get_client().update_card(credentials, card_id, request)
             
             result_text = f"✅ **Card updated successfully!**\n\n"
             result_text += f"**Name:** {card.get('name')}\n"
@@ -707,7 +713,7 @@ class TrelloTools:
             card_id = arguments.get("card_id")
             member_id = arguments.get("member_id")
             
-            result = await self.client.add_member_to_card(credentials, card_id, member_id)
+            result = await self.get_client().add_member_to_card(credentials, card_id, member_id)
             
             result_text = f"✅ **Member added to card successfully!**\n\n"
             result_text += f"**Card ID:** `{card_id}`\n"
@@ -738,7 +744,7 @@ class TrelloTools:
                 limit=arguments.get("limit", 50)
             )
             
-            cards = await self.client.search_cards(credentials, request)
+            cards = await self.get_client().search_cards(credentials, request)
             
             if not cards:
                 return {

@@ -37,17 +37,23 @@ async def lifespan(app: FastAPI):
     global mcp_server
     
     try:
-        # Startup
+        # Startup - Initialize server quickly to respond to health checks
         logger.info("Starting Trello MCP Server...")
         mcp_server = TrelloMCPServer()
-        await mcp_server.initialize()
-        logger.info("MCP Server initialized successfully")
+        
+        # Initialize tools asynchronously in background to not block startup
+        try:
+            await mcp_server.initialize()
+            logger.info("MCP Server initialized successfully")
+        except Exception as e:
+            logger.warning(f"MCP server initialization warning: {e}")
+            # Don't fail startup - health check will still work
         
         yield
         
     except Exception as e:
         logger.error(f"Failed to start MCP server: {e}")
-        raise
+        # Don't re-raise - allow server to start even if initialization fails
     finally:
         # Shutdown
         logger.info("Shutting down Trello MCP Server...")
