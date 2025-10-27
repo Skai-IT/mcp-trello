@@ -45,6 +45,7 @@ COPY tools.py .
 COPY schemas.py .
 COPY config.py .
 COPY logging_config.py .
+COPY credential_manager.py .
 
 # Change ownership to non-root user
 RUN chown -R app:app /app
