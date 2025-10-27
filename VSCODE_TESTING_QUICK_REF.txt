@@ -1,0 +1,116 @@
+## 🧪 VS Code Testing - Quick Reference
+
+### 1. Install REST Client Extension
+- Extension: **REST Client** by Huachao Mao
+- Search in VS Code Extensions: "REST Client"
+- Click Install
+
+### 2. Open Test File in VS Code
+```
+/Users/shlomisha/Documents/vscodeprojects/Trello/test-cloud-run.http
+```
+
+### 3. Add Your Trello Credentials (Line ~45)
+```http
+@apiKey = YOUR_API_KEY_FROM_TRELLO.COM/APP-KEY
+@token = YOUR_TOKEN_FROM_TRELLO.COM/APP-KEY
+```
+
+### 4. Run Tests
+- Hover over any line with a numbered comment (### 1., ### 2., etc.)
+- Click "Send Request" link that appears
+- View response on the right side
+
+---
+
+## 📋 Test Sequence
+
+| # | Test | Needs Credentials | Purpose |
+|---|------|-------------------|---------|
+| 1 | Health Check | ❌ | Verify service is up |
+| 2 | Server Info | ❌ | Get service details |
+| 3 | List Tools | ❌ | See all 11 tools |
+| 4 | MCP Init | ❌ | Initialize protocol |
+| 5 | List Tools MCP | ❌ | Tools via protocol |
+| 6 | List Boards | ✅ | Get your boards |
+| 7 | Get Board | ✅ | Board details |
+| 8 | Create Board | ✅ | Create new board |
+| 9 | Get Lists | ✅ | List board's lists |
+| 10 | Create List | ✅ | Create new list |
+| 11 | Get Cards | ✅ | Get list's cards |
+| 12 | Create Card | ✅ | Create new card |
+| 13 | Update Card | ✅ | Edit card |
+| 14 | Search Cards | ✅ | Search cards |
+| 15 | Add Member | ✅ | Assign member |
+
+---
+
+## 🎯 Typical Test Flow
+
+```
+1. Health Check ✅
+   ↓
+2. List Tools ✅
+   ↓
+3. Add your credentials
+   ↓
+4. List Boards ✅ (copy board ID)
+   ↓
+5. Get Board (paste board ID) ✅
+   ↓
+6. Get Lists (paste board ID) ✅ (copy list ID)
+   ↓
+7. Get Cards (paste list ID) ✅
+   ↓
+8. Create Card (paste list ID) ✅
+```
+
+---
+
+## 🔐 Getting Your Credentials
+
+1. Go to: **https://trello.com/app-key**
+2. Copy the **API Key** (looks like: `abc1234567890def`)
+3. Scroll down and click **"Token"** link
+4. Copy the **Token** (long string starting with `ATTA`)
+5. Paste both into the test file (around line 45)
+
+---
+
+## 📖 File Locations
+
+- **Test File**: `/Users/shlomisha/Documents/vscodeprojects/Trello/test-cloud-run.http`
+- **Testing Guide**: `/Users/shlomisha/Documents/vscodeprojects/Trello/TESTING_GUIDE.md`
+- **GitHub Repo**: https://github.com/Skai-IT/mcp-trello
+
+---
+
+## 🚀 Service URL
+
+```
+https://trello-mcp-116435607783.us-central1.run.app
+```
+
+---
+
+## 💡 Tips
+
+- **Copy IDs from responses** to use in subsequent requests
+- **Check logs** while testing: `gcloud run logs tail trello-mcp --region=us-central1 --project=kenshoo-it-dept`
+- **Responses appear** on the right side of VS Code in a new panel
+- **Beautiful formatting** - REST Client auto-formats JSON responses
+
+---
+
+## ✨ What's Next
+
+After testing:
+1. ✅ Verify all 11 tools work
+2. ✅ Document results
+3. ✅ Integrate with your AI agents
+4. ✅ Monitor Cloud Run logs
+5. ✅ Scale as needed!
+
+---
+
+**Ready to test? Open the file in VS Code and start with Health Check!** 🎉
