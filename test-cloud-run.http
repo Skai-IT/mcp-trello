@@ -1,0 +1,273 @@
+### Trello MCP Server - Cloud Run Testing
+### Service URL: https://trello-mcp-116435607783.us-central1.run.app
+
+@baseUrl = https://trello-mcp-116435607783.us-central1.run.app
+@contentType = application/json
+
+### 1. Health Check - Verify service is running
+GET {{baseUrl}}/health
+
+###
+
+### 2. Server Info - Get server details
+GET {{baseUrl}}/
+
+###
+
+### 3. List Available Tools
+GET {{baseUrl}}/tools
+
+###
+
+### 4. MCP Initialize - Initialize the protocol
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "id": 1,
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "tools": {},
+      "resources": {},
+      "prompts": {}
+    },
+    "clientInfo": {
+      "name": "vscode-client",
+      "version": "1.0.0"
+    }
+  }
+}
+
+###
+
+### 5. List Tools via MCP Protocol
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "id": 2
+}
+
+###
+
+### ⚠️ IMPORTANT: Replace with your actual Trello credentials before running!
+### Get credentials from: https://trello.com/app-key
+
+@apiKey = YOUR_TRELLO_API_KEY_HERE
+@token = YOUR_TRELLO_TOKEN_HERE
+
+###
+
+### 6. List Boards - Get all user boards
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 3,
+  "params": {
+    "name": "list_boards",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}"
+    }
+  }
+}
+
+###
+
+### 7. Get Board - Get specific board details (replace board_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 4,
+  "params": {
+    "name": "get_board",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "board_id": "REPLACE_WITH_BOARD_ID"
+    }
+  }
+}
+
+###
+
+### 8. Create Board - Create a new board
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 5,
+  "params": {
+    "name": "create_board",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "name": "Test Board from VS Code",
+      "desc": "Testing MCP from VS Code via Cloud Run",
+      "default_lists": true
+    }
+  }
+}
+
+###
+
+### 9. Get Lists - Get all lists from a board (replace board_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 6,
+  "params": {
+    "name": "get_lists",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "board_id": "REPLACE_WITH_BOARD_ID"
+    }
+  }
+}
+
+###
+
+### 10. Create List - Create a new list (replace board_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 7,
+  "params": {
+    "name": "create_list",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "name": "Test List",
+      "board_id": "REPLACE_WITH_BOARD_ID"
+    }
+  }
+}
+
+###
+
+### 11. Get Cards - Get all cards from a list (replace list_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 8,
+  "params": {
+    "name": "get_cards",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "list_id": "REPLACE_WITH_LIST_ID"
+    }
+  }
+}
+
+###
+
+### 12. Create Card - Create a new card (replace list_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 9,
+  "params": {
+    "name": "create_card",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "name": "Test Card from VS Code",
+      "list_id": "REPLACE_WITH_LIST_ID",
+      "desc": "Created via MCP in Cloud Run from VS Code",
+      "due": "2025-12-31T23:59:59Z"
+    }
+  }
+}
+
+###
+
+### 13. Update Card - Update existing card (replace card_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 10,
+  "params": {
+    "name": "update_card",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "card_id": "REPLACE_WITH_CARD_ID",
+      "name": "Updated Card Name",
+      "desc": "Updated description"
+    }
+  }
+}
+
+###
+
+### 14. Search Cards - Search for cards
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 11,
+  "params": {
+    "name": "search_cards",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "query": "test",
+      "limit": 20
+    }
+  }
+}
+
+###
+
+### 15. Add Member to Card - Assign member (replace card_id and member_id)
+POST {{baseUrl}}/mcp
+Content-Type: {{contentType}}
+
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "id": 12,
+  "params": {
+    "name": "add_member_to_card",
+    "arguments": {
+      "api_key": "{{apiKey}}",
+      "token": "{{token}}",
+      "card_id": "REPLACE_WITH_CARD_ID",
+      "member_id": "REPLACE_WITH_MEMBER_ID"
+    }
+  }
+}
+
+###
