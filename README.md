@@ -672,10 +672,41 @@ LOG_LEVEL=INFO
 REQUEST_TIMEOUT=30
 MAX_RETRIES=3
 
+# NEW: Optional pre-configured credentials (for non-interactive deployment)
+# When set, these will be automatically loaded at startup
+# Set BOTH for non-interactive mode, or neither for interactive login
+TRELLO_USERNAME=your-api-key        # Trello API key
+TRELLO_PASSWORD=your-api-token      # Trello API token
+
 # Cloud Run auto-injected
 K_SERVICE=trello-mcp
 K_REVISION=trello-mcp-00001-abc
 PORT=8080
+```
+
+**For detailed environment variable documentation**, see [ENV_VARIABLES.md](./ENV_VARIABLES.md)
+
+**Using Pre-configured Credentials (Cloud Run):**
+```bash
+gcloud run deploy trello-mcp \
+  --source . \
+  --region us-central1 \
+  --set-env-vars="TRELLO_USERNAME=your-api-key,TRELLO_PASSWORD=your-api-token" \
+  --allow-unauthenticated
+```
+
+**Using Cloud Secrets (Recommended):**
+```bash
+# Create secrets
+gcloud secrets create trello-api-key --replication-policy="automatic" --data-file=- <<< "your-api-key"
+gcloud secrets create trello-api-token --replication-policy="automatic" --data-file=- <<< "your-api-token"
+
+# Deploy with secrets
+gcloud run deploy trello-mcp \
+  --source . \
+  --region us-central1 \
+  --set-env-vars="TRELLO_USERNAME=projects/PROJECT_ID/secrets/trello-api-key/versions/latest,TRELLO_PASSWORD=projects/PROJECT_ID/secrets/trello-api-token/versions/latest" \
+  --allow-unauthenticated
 ```
 
 ### Custom Deployment

@@ -27,6 +27,11 @@ class Config:
     REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", 30))
     MAX_RETRIES = int(os.getenv("MAX_RETRIES", 3))
     
+    # Credentials settings (optional environment variables)
+    # These can be pre-configured to skip interactive login
+    TRELLO_USERNAME = os.getenv("TRELLO_USERNAME", None)
+    TRELLO_PASSWORD = os.getenv("TRELLO_PASSWORD", None)
+    
     @staticmethod
     def get_timestamp() -> str:
         """Get current timestamp in ISO format"""

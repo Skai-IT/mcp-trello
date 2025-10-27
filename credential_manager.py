@@ -3,6 +3,7 @@ Credential Manager for Trello MCP
 
 Handles session-based credential storage and browser-based OAuth login.
 Supports both interactive prompt-based and session-cached credentials.
+Can also use environment variables for pre-configured authentication.
 """
 
 import logging
@@ -10,6 +11,7 @@ from typing import Optional, Tuple
 from datetime import datetime, timedelta
 import webbrowser
 import json
+from config import config
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +31,15 @@ class CredentialManager:
         self.credentials_timestamp: Optional[datetime] = None
         self.session_id: Optional[str] = None
         
+        # Load from environment variables if available
+        self.env_username = config.TRELLO_USERNAME
+        self.env_password = config.TRELLO_PASSWORD
+        
+        # Cache environment credentials if both provided
+        if self.env_username and self.env_password:
+            logger.info("Loading credentials from environment variables (TRELLO_USERNAME, TRELLO_PASSWORD)")
+            self.cache_credentials(self.env_username, self.env_password)
+        
     def is_cached_valid(self) -> bool:
         """Check if cached credentials are still valid"""
         if not self.cached_credentials or not self.credentials_timestamp:
@@ -42,17 +53,21 @@ class CredentialManager:
         
         return True
     
-    def cache_credentials(self, api_key: str, token: str) -> None:
+    def cache_credentials(self, api_key: str, token: str, username: str = None, password: str = None) -> None:
         """
         Cache credentials for the session
         
         Args:
             api_key: Trello API key
             token: Trello API token
+            username: Optional username (e.g., from environment variable)
+            password: Optional password (e.g., from environment variable)
         """
         self.cached_credentials = {
             "api_key": api_key,
-            "token": token
+            "token": token,
+            "username": username,
+            "password": password
         }
         self.credentials_timestamp = datetime.now()
         logger.info("Credentials cached for session")
