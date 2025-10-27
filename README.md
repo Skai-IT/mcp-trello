@@ -194,70 +194,366 @@ POST /mcp
 }
 ```
 
-## 🔗 Integration Examples
+## 🔗 Integration Guide
 
-### Claude Desktop Configuration
+### ⭐ Claude Desktop Integration
 
-Add to `claude_desktop_config.json`:
+#### Step 1: Download the Proxy Server
+```bash
+# Get the proxy server that connects to Cloud Run
+curl -o ~/trello_mcp_server.py https://raw.githubusercontent.com/Skai-IT/mcp-trello/main/trello_mcp_server.py
+chmod +x ~/trello_mcp_server.py
+```
+
+#### Step 2: Install Dependencies
+```bash
+pip3 install httpx
+```
+
+#### Step 3: Configure Claude Desktop
+**File location:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+Add this configuration:
 ```json
 {
   "mcpServers": {
-    "trello": {
-      "command": "node",
-      "args": ["/path/to/trello-mcp-client.js"],
+    "trello-mcp": {
+      "command": "python3",
+      "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
       "env": {
-        "TRELLO_MCP_URL": "https://your-service-url"
+        "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app",
+        "TRELLO_MCP_TYPE": "cloud_run"
       }
     }
   }
 }
 ```
 
-### Custom AI Agent Integration
+**⚠️ Important:** Replace `YOUR_USERNAME` with your home directory (run `echo $HOME`)
 
+#### Step 4: Restart Claude Desktop
+- Close Claude completely
+- Reopen it
+- The Trello MCP should now be available
+
+#### Step 5: Verify Connection
+In Claude, try:
+```
+List my Trello boards
+```
+
+Claude will connect to your Trello account and show your boards.
+
+---
+
+### VS Code Integration
+
+#### Configuration File
+**File location:** `~/.vscode/settings.json`
+
+Add this to your settings:
+```json
+{
+  "mcp": {
+    "mcpServers": {
+      "trello-mcp": {
+        "command": "python3",
+        "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
+        "env": {
+          "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app",
+          "TRELLO_MCP_TYPE": "cloud_run"
+        }
+      }
+    }
+  }
+}
+```
+
+Replace `YOUR_USERNAME` with your home directory.
+
+#### Verify Connection
+1. Restart VS Code
+2. Open Developer Console: `Cmd + Shift + J` (Mac)
+3. Look for: "MCP Server connected"
+4. No errors = ✅ Success!
+
+---
+
+### Cursor Integration
+
+#### Step 1: Get Proxy Server
+Same as Claude Desktop - download `trello_mcp_server.py`
+
+#### Step 2: Install Dependencies
+```bash
+pip3 install httpx
+```
+
+#### Step 3: Configure Cursor
+**File location:** `~/.cursor/settings.json` or `~/.config/Cursor/User/settings.json`
+
+```json
+{
+  "mcp": {
+    "mcpServers": {
+      "trello-mcp": {
+        "command": "python3",
+        "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
+        "env": {
+          "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app"
+        }
+      }
+    }
+  }
+}
+```
+
+#### Step 4: Restart Cursor
+- Close Cursor completely
+- Reopen it
+- Trello MCP is ready to use
+
+---
+
+### Cline (VS Code Extension) Integration
+
+Cline is an autonomous AI agent for VS Code.
+
+#### Configuration
+Add to your VS Code `settings.json`:
+```json
+{
+  "mcp": {
+    "mcpServers": {
+      "trello-mcp": {
+        "command": "python3",
+        "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
+        "env": {
+          "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app"
+        }
+      }
+    }
+  }
+}
+```
+
+#### Using with Cline
+1. Open Cline in VS Code
+2. Start a new task
+3. Ask Cline: "Use the Trello MCP to create a board called 'Q4 Planning'"
+4. Cline will use the MCP tools to interact with Trello
+
+---
+
+### LM Studio Integration
+
+LM Studio is a local LLM interface that supports MCP.
+
+#### Configuration
+**File location:** `~/.lm-studio/mcp-servers.json`
+
+```json
+{
+  "servers": [
+    {
+      "name": "trello-mcp",
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
+      "env": {
+        "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app"
+      }
+    }
+  ]
+}
+```
+
+---
+
+### Zed Integration
+
+Zed is a high-performance code editor with MCP support.
+
+#### Configuration
+**File location:** `~/.config/zed/settings.json`
+
+```json
+{
+  "mcp_servers": {
+    "trello-mcp": {
+      "command": "python3",
+      "args": ["/Users/YOUR_USERNAME/trello_mcp_server.py"],
+      "env": {
+        "TRELLO_MCP_URL": "https://trello-mcp-116435607783.us-central1.run.app"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Custom AI Integration
+
+#### Python Client Example
 ```python
-import aiohttp
+import httpx
 import json
 
 class TrelloMCPClient:
-    def __init__(self, server_url, api_key, token):
-        self.server_url = server_url
-        self.api_key = api_key
-        self.token = token
-        
-    async def call_tool(self, tool_name, **kwargs):
-        payload = {
+    def __init__(self, service_url):
+        self.service_url = service_url
+        self.client = httpx.Client()
+    
+    def call_tool(self, tool_name, **params):
+        """Call a Trello MCP tool"""
+        request = {
             "jsonrpc": "2.0",
-            "method": "tools/call",
             "id": 1,
-            "params": {
-                "name": tool_name,
-                "arguments": {
-                    "api_key": self.api_key,
-                    "token": self.token,
-                    **kwargs
-                }
-            }
+            "method": tool_name,
+            "params": params
         }
         
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.server_url}/mcp",
-                json=payload
-            ) as response:
-                return await response.json()
-                
-    async def list_boards(self):
-        return await self.call_tool("list_boards")
-        
-    async def create_card(self, name, list_id, **kwargs):
-        return await self.call_tool(
-            "create_card", 
-            name=name, 
-            list_id=list_id, 
-            **kwargs
+        response = self.client.post(
+            f"{self.service_url}/mcp",
+            json=request
         )
+        return response.json()
+    
+    def list_boards(self):
+        """List all Trello boards"""
+        return self.call_tool("list_boards", {})
+    
+    def create_card(self, board_id, list_id, name, description=""):
+        """Create a new Trello card"""
+        return self.call_tool("create_card", {
+            "board_id": board_id,
+            "list_id": list_id,
+            "name": name,
+            "description": description
+        })
+
+# Usage
+client = TrelloMCPClient("https://trello-mcp-116435607783.us-central1.run.app")
+boards = client.list_boards()
+print(boards)
 ```
+
+#### JavaScript/Node.js Client Example
+```javascript
+const fetch = require('node-fetch');
+
+class TrelloMCPClient {
+  constructor(serviceUrl) {
+    this.serviceUrl = serviceUrl;
+  }
+
+  async callTool(toolName, params) {
+    const request = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: toolName,
+      params: params
+    };
+
+    const response = await fetch(`${this.serviceUrl}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    });
+
+    return response.json();
+  }
+
+  async listBoards() {
+    return this.callTool('list_boards', {});
+  }
+
+  async createCard(boardId, listId, name, description = '') {
+    return this.callTool('create_card', {
+      board_id: boardId,
+      list_id: listId,
+      name: name,
+      description: description
+    });
+  }
+}
+
+// Usage
+const client = new TrelloMCPClient('https://trello-mcp-116435607783.us-central1.run.app');
+client.listBoards().then(boards => console.log(boards));
+```
+
+---
+
+### Integration Summary Table
+
+| Tool | Type | Config File | Status |
+|------|------|-------------|--------|
+| **Claude Desktop** | 🤖 AI Agent | `claude_desktop_config.json` | ✅ Fully Supported |
+| **VS Code** | 📝 Editor | `.vscode/settings.json` | ✅ Fully Supported |
+| **Cursor** | 📝 Editor | `.cursor/settings.json` | ✅ Fully Supported |
+| **Cline** | 🤖 VS Code Extension | `.vscode/settings.json` | ✅ Fully Supported |
+| **LM Studio** | 🤖 Local LLM | `.lm-studio/mcp-servers.json` | ✅ Supported |
+| **Zed** | 📝 Editor | `.config/zed/settings.json` | ✅ Supported |
+| **Custom Python** | 🔧 Client | N/A | ✅ Examples Provided |
+| **Custom Node.js** | 🔧 Client | N/A | ✅ Examples Provided |
+
+---
+
+### Getting Started with Each Tool
+
+#### For Claude Desktop
+1. ✅ Download proxy server
+2. ✅ Install httpx
+3. ✅ Add config to `claude_desktop_config.json`
+4. ✅ Restart Claude
+5. 🎯 Start using Trello tools!
+
+#### For VS Code / Cursor
+1. ✅ Download proxy server
+2. ✅ Install httpx
+3. ✅ Add config to settings.json
+4. ✅ Restart editor
+5. 🎯 Open MCP tools in your editor!
+
+#### For Custom Integration
+1. ✅ Get service URL
+2. ✅ Use provided client code
+3. ✅ Call tools via JSON-RPC
+4. 🎯 Integrate into your application!
+
+---
+
+### Troubleshooting Integration
+
+**Problem: "MCP Server not connecting"**
+- Verify proxy server is running: `python3 ~/trello_mcp_server.py`
+- Check config file syntax (validate JSON)
+- Ensure path is correct: `echo $HOME`
+- Restart the application
+
+**Problem: "Credentials error"**
+- First tool call will prompt for auth
+- Browser should auto-open to Trello
+- Copy API key and token when prompted
+- Credentials cached for 8 hours
+
+**Problem: "Connection timeout"**
+- Check internet connectivity
+- Verify Cloud Run service is running
+- Test: `curl https://trello-mcp-116435607783.us-central1.run.app/health`
+
+**Problem: "httpx not found"**
+- Install: `pip3 install httpx`
+- Verify: `python3 -c "import httpx"`
+
+### Custom AI Agent Integration
+
+See the **Integration Guide** section above for:
+- Python client example for custom AI agents
+- JavaScript/Node.js client example
+- Full implementation patterns
 
 ## 🏗️ Architecture
 
