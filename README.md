@@ -15,7 +15,14 @@ This MCP server provides **11 comprehensive Trello tools** that allow AI agents 
 
 ## ✨ Key Features
 
-### 🔐 **Security First**
+### 🔐 **Interactive Login System** (NEW!)
+- **Browser-based authentication** - Automatic pop-up to Trello login page
+- **Session credential caching** - 8-hour auto-cache, no disk storage
+- **Optional credentials** - First request prompts, subsequent requests use cache
+- **Secure by default** - Never asks for credentials more than once per session
+- See: `QUICK_START_LOGIN.txt` | `INTERACTIVE_LOGIN_GUIDE.md`
+
+### 🔒 **Security First**
 - **Per-request credentials** - API keys never stored
 - **Input validation** with Pydantic schemas
 - **Multi-tenant safe** - isolated by user credentials
@@ -541,10 +548,23 @@ MIT License - see LICENSE file for details.
 
 ## 📚 Related Documentation
 
+### Getting Started
 - [START_HERE.txt](./START_HERE.txt) - First-time orientation
 - [QUICKSTART.md](./QUICKSTART.md) - 5-minute deployment guide  
+- [QUICK_START_LOGIN.txt](./QUICK_START_LOGIN.txt) - ⭐ NEW: 2-minute interactive login guide
+
+### Interactive Login Feature (NEW!)
+- [INTERACTIVE_LOGIN_GUIDE.md](./INTERACTIVE_LOGIN_GUIDE.md) - Complete guide with examples
+- [LOGIN_FEATURE.md](./LOGIN_FEATURE.md) - Feature overview and benefits
+- [FEATURE_SUMMARY.txt](./FEATURE_SUMMARY.txt) - Visual diagrams and implementation details
+
+### Architecture & Deployment
 - [DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md) - Architecture deep dive
+- [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - Implementation details
 - [FILE_MANIFEST.md](./FILE_MANIFEST.md) - File-by-file breakdown
+
+### Testing
+- [TESTING_GUIDE.md](./TESTING_GUIDE.md) - Comprehensive testing guide
 
 ---
 
